@@ -87,16 +87,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Parse WhatsApp chat export
-  function parseChat(chatText) {
-    const lines = chatText.split(/\r?\n/);
-    const parsed = [];
-    const regex = /^([0-9]{1,2}\/[0-9]{1,2}\/[0-9]{2,4}),\s([0-9]{1,2}:[0-9]{2})(?:\s?(AM|PM|am|pm))?\s-\s([^:]+):\s(.*)$/;
+ const regex = /^([0-9]{1,2}\/[0-9]{1,2}\/[0-9]{2,4}),\s([0-9]{1,2}:[0-9]{2})(?:\s?(AM|PM|am|pm))?\s-\s([^:]+):\s(.*)$/;
     let currentMessage = null;
     lines.forEach(line => {
       const match = line.match(regex);
       if (match) {
         if (currentMessage) {
-          parsed.push(currentMessage);
+           function parseChat(chatText) {
+    const lines = chatText.split(/\r?\n/);
+    const parsed = [];
+    parsed.push(currentMessage);
         }
         const date = match[1];
         const time = match[2] + (match[3] ? ' ' + match[3] : '');
@@ -116,6 +116,45 @@ document.addEventListener('DOMContentLoaded', () => {
       parsed.push(currentMessage);
     }
     return parsed;
+  function parseChat(chatText) {
+  // Normalize text and remove zero-width characters
+  const lines = chatText.split(/\r?\n/);
+  const parsed = [];
+  let currentMessage = null;
+  // Regex for standard format (dd/mm/yyyy, hh:mm[:ss] [AM/PM] - Name: Message)
+  const standardRegex = /^(\d{1,2}\/\d{1,2}\/\d{2,4}),\s(\d{1,2}:\d{2})(?::\d{2})?\s?(?:AM|PM|am|pm)?\s-\s([^:]+):\s(.*)$/;
+  // Regex for bracketed format ([dd/mm/yyyy, hh:mm:ss] Name: Message)
+  const bracketRegex = /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),\s(\d{1,2}:\d{2}:\d{2})\]\s([^:]+):\s(.*)$/;
+
+  lines.forEach(line => {
+    let match = standardRegex.exec(line);
+    if (!match) {
+      match = bracketRegex.exec(line);
+    }
+    if (match) {
+      if (currentMessage) {
+        parsed.push(currentMessage);
+      }
+      const date = match[1];
+      const time = match[2];
+      const sender = match[3];
+      let text = match[4];
+      // Mark media messages generically
+      if (/^(\u200e)?<attached:.+>$/.test(text) || /^(IMG-|VID-|PTT-)/i.test(text)) {
+        text = '[Media omitted]';
+      }
+      currentMessage = { date, time, sender, text };
+    } else if (currentMessage) {
+      // Continuation of previous message
+      currentMessage.text += '\n' + line;
+    }
+  });
+  if (currentMessage) {
+    parsed.push(currentMessage);
+  }
+  return parsed;
+}
+
   }
 
   // Handle file input change
