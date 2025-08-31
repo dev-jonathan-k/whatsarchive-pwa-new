@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsArchive - WhatsApp Chat Viewer</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="assets/icon-192.png">
+  <meta name="theme-color" content="#ffffff">
+  <style>
+    body {
+      font-family: Helvetica, "San Francisco", sans-serif;
+      background-color: #fafafa;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #4CAF50;
+    }
+    #fileInput,
+    #searchInput {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      font-size: 1em;
+    }
+    #status {
+      margin: 10px 0;
+      font-weight: bold;
+    }
+    .message {
+      border-bottom: 1px solid #ddd;
+      padding: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .message .text {
+      flex: 1;
+    }
+    .starred {
+      background-color: #ffeb3b;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>WhatsArchive</h1>
+    <label for="fileInput">Import chat:</label>
+    <input type="file" id="fileInput" accept=".txt">
+    <label for="searchInput">Search:</label>
+    <input type="text" id="searchInput" placeholder="Search messages">
+    <div id="status"></div>
+    <div id="messages"></div>
+    <div class="footer">
+      <p>&copy; 2025 WhatsArchive</p>
+    </div>
+  </div>
+  <script src="script.js"></script>
+  <script>
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('service-worker.js');
+      });
+    }
+  </script>
+</body>
+</html>
